@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/ezio1119/fishapp-auth/conf"
-	"github.com/ezio1119/fishapp-auth/domain"
+	"github.com/ezio1119/fishapp-user/conf"
+	"github.com/ezio1119/fishapp-user/domain"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

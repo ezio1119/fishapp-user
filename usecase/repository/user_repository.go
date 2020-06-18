@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"github.com/ezio1119/fishapp-auth/domain"
+	"github.com/ezio1119/fishapp-user/domain"
 )
 
 type UserRepository interface {

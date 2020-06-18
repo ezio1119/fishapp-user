@@ -3,7 +3,7 @@ package middleware
 import (
 	"time"
 
-	"github.com/ezio1119/fishapp-auth/conf"
+	"github.com/ezio1119/fishapp-user/conf"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

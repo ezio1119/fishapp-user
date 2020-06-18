@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
-	"github.com/ezio1119/fishapp-auth/domain"
-	"github.com/ezio1119/fishapp-auth/usecase/repository"
+	"github.com/ezio1119/fishapp-user/domain"
+	"github.com/ezio1119/fishapp-user/usecase/repository"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"google.golang.org/grpc/codes"

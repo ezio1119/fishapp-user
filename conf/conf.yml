@@ -1,10 +1,10 @@
 db:
   dbms: mysql
-  name: auth_DB
+  name: user_DB
   user: root
   pass: password
   net: tcp
-  host: auth-db
+  host: user-db
   port: 3306
   parsetime: true
   allowNativePasswords: true

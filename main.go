@@ -1,22 +1,18 @@
 package main
 
 import (
-	"context"
 	"net"
 	"time"
 
-	"github.com/ezio1119/fishapp-auth/conf"
-	"github.com/ezio1119/fishapp-auth/infrastructure"
-	"github.com/ezio1119/fishapp-auth/infrastructure/middleware"
-	"github.com/ezio1119/fishapp-auth/interfaces/controllers"
-	"github.com/ezio1119/fishapp-auth/interfaces/repository"
-	"github.com/ezio1119/fishapp-auth/pb"
-	"github.com/ezio1119/fishapp-auth/usecase/interactor"
-	"google.golang.org/grpc"
+	"github.com/ezio1119/fishapp-user/conf"
+	"github.com/ezio1119/fishapp-user/infrastructure"
+	"github.com/ezio1119/fishapp-user/infrastructure/middleware"
+	"github.com/ezio1119/fishapp-user/interfaces/controllers"
+	"github.com/ezio1119/fishapp-user/interfaces/repository"
+	"github.com/ezio1119/fishapp-user/usecase/interactor"
 )
 
 func main() {
-	ctx := context.Background()
 	dbConn, err := infrastructure.NewGormConn()
 	if err != nil {
 		panic(err)
@@ -29,17 +25,9 @@ func main() {
 	}
 	defer redisC.Close()
 
-	grpcConn, err := grpc.DialContext(ctx, conf.C.API.ProfileAPI, grpc.WithInsecure())
-	if err != nil {
-		panic(err)
-	}
-	defer grpcConn.Close()
-	profileC := pb.NewProfileServiceClient(grpcConn)
-
 	authController := controllers.NewAuthController(
 		interactor.NewAuthInteractor(
 			repository.NewUserRepository(dbConn),
-			repository.NewProfileRepository(profileC),
 			repository.NewBlackListRepository(redisC),
 			time.Duration(conf.C.Sv.Timeout)*time.Second,
 		))
@@ -50,8 +38,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	err = server.Serve(list)
-	if err != nil {
+	if err := server.Serve(list); err != nil {
 		panic(err)
 	}
 

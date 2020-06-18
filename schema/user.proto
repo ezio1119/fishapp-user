@@ -4,7 +4,6 @@ option go_package = ".;pb";
 import "validate/validate.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "profile.proto";
 
 service UserService {
   rpc CurrentUser(CurrentUserReq) returns (User);// require id_token

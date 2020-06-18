@@ -1,14 +1,14 @@
 package infrastructure
 
 import (
-	"github.com/ezio1119/fishapp-auth/infrastructure/middleware"
-	"github.com/ezio1119/fishapp-auth/pb"
+	"github.com/ezio1119/fishapp-user/infrastructure/middleware"
+	"github.com/ezio1119/fishapp-user/pb"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-func NewGrpcServer(middLe *middleware.Middleware, uc pb.AuthServiceServer) *grpc.Server {
+func NewGrpcServer(middLe *middleware.Middleware, uc pb.UserServiceServer) *grpc.Server {
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			middLe.LoggerInterceptor(),
@@ -17,7 +17,7 @@ func NewGrpcServer(middLe *middleware.Middleware, uc pb.AuthServiceServer) *grpc
 			// middLe.RecoveryInterceptor(),
 		)),
 	)
-	pb.RegisterAuthServiceServer(server, uc)
+	pb.RegisterUserServiceServer(server, uc)
 	reflection.Register(server)
 	return server
 }

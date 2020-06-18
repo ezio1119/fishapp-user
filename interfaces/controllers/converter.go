@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/ezio1119/fishapp-auth/domain"
-	"github.com/ezio1119/fishapp-auth/pb"
+	"github.com/ezio1119/fishapp-user/domain"
+	"github.com/ezio1119/fishapp-user/pb"
 	"github.com/golang/protobuf/ptypes"
 )
 

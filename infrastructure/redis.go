@@ -1,7 +1,7 @@
 package infrastructure
 
 import (
-	"github.com/ezio1119/fishapp-auth/conf"
+	"github.com/ezio1119/fishapp-user/conf"
 	"github.com/go-redis/redis/v7"
 )
 

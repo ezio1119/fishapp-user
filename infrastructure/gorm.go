@@ -3,7 +3,7 @@ package infrastructure
 import (
 	"time"
 
-	"github.com/ezio1119/fishapp-auth/conf"
+	"github.com/ezio1119/fishapp-user/conf"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 )

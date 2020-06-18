@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/ezio1119/fishapp-auth/usecase/repository"
+	"github.com/ezio1119/fishapp-user/usecase/repository"
 	"github.com/go-redis/redis/v7"
 )
 

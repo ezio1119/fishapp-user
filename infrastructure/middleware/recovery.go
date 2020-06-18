@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/ezio1119/fishapp-auth/conf"
+	"github.com/ezio1119/fishapp-user/conf"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
