@@ -1,0 +1,14 @@
+extend type Image {
+  id: ID!
+  Name: String!
+  OwnerId: Int!
+  OwnerType: OwnerType!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+enum OwnerType {
+  POST
+  PROFILE
+  MESSAGE
+}
