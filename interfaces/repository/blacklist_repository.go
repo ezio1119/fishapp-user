@@ -3,7 +3,6 @@ package repository
 import (
 	"time"
 
-	"github.com/ezio1119/fishapp-user/usecase/repository"
 	"github.com/go-redis/redis/v7"
 )
 
@@ -11,7 +10,7 @@ type blackListRepository struct {
 	client *redis.Client
 }
 
-func NewBlackListRepository(client *redis.Client) repository.BlackListRepository {
+func NewBlackListRepository(client *redis.Client) *blackListRepository {
 	return &blackListRepository{client}
 }
 

@@ -12,7 +12,7 @@ proto:
 	-I/go/src/github.com/envoyproxy/protoc-gen-validate \
 	--go_out=plugins=grpc:/pb \
 	--validate_out="lang=go:/pb" \
-	user.proto
+	user.proto image.proto
 	
 cli:
 	docker run --rm --net=fishapp-net znly/grpc_cli \

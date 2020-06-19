@@ -14,3 +14,10 @@ type JwtClaims struct {
 type ctxKey string
 
 const JwtCtxKey ctxKey = "jwtClaims"
+
+type TokenType string
+
+const (
+	IdToken      TokenType = "id_token"
+	RefreshToken TokenType = "refresh_token"
+)

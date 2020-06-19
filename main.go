@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net"
 	"time"
 
@@ -9,10 +10,13 @@ import (
 	"github.com/ezio1119/fishapp-user/infrastructure/middleware"
 	"github.com/ezio1119/fishapp-user/interfaces/controllers"
 	"github.com/ezio1119/fishapp-user/interfaces/repository"
+	"github.com/ezio1119/fishapp-user/pb"
 	"github.com/ezio1119/fishapp-user/usecase/interactor"
+	"google.golang.org/grpc"
 )
 
 func main() {
+	ctx := context.Background()
 	dbConn, err := infrastructure.NewGormConn()
 	if err != nil {
 		panic(err)
@@ -25,12 +29,22 @@ func main() {
 	}
 	defer redisC.Close()
 
+	grpcConn, err := grpc.DialContext(ctx, conf.C.API.ImageURL, grpc.WithInsecure())
+	if err != nil {
+		panic(err)
+	}
+	defer grpcConn.Close()
+	imageC := pb.NewImageServiceClient(grpcConn)
+
 	userController := controllers.NewUserController(
 		interactor.NewUserInteractor(
 			repository.NewUserRepository(dbConn),
 			repository.NewBlackListRepository(redisC),
+			repository.NewImageRepository(imageC),
 			time.Duration(conf.C.Sv.Timeout)*time.Second,
-		))
+		),
+		middleware.AuthFunc, // grpc.StreamServerInterceptorでcontextを渡せないためコントローラー層で認証する
+	)
 
 	server := infrastructure.NewGrpcServer(middleware.InitMiddleware(), userController)
 

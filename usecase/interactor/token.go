@@ -12,11 +12,11 @@ import (
 )
 
 func genTokenPair(id string) (*domain.TokenPair, error) {
-	idToken, err := genToken(id, "id_token", conf.C.Auth.IDTokenExpSec)
+	idToken, err := genToken(id, string(domain.IdToken), conf.C.Auth.IDTokenExpSec)
 	if err != nil {
 		return nil, err
 	}
-	refreshToken, err := genToken(id, "refresh_token", conf.C.Auth.RtExpSec)
+	refreshToken, err := genToken(id, string(domain.RefreshToken), conf.C.Auth.RtExpSec)
 	if err != nil {
 		return nil, err
 	}

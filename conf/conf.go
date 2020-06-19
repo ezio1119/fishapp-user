@@ -20,9 +20,10 @@ type config struct {
 		AllowNativePasswords bool
 	}
 	Sv struct {
-		Timeout int64
-		Port    string
-		Debug   bool
+		Timeout        int64
+		Port           string
+		Debug          bool
+		ImageChunkSize int64
 	}
 	Kvs struct {
 		Db   int
@@ -36,6 +37,9 @@ type config struct {
 		PubJwtkey     string `mapstructure:"pub_jwtkey"`
 		IDTokenExpSec int64  `mapstructure:"idtoken_exp_sec"`
 		RtExpSec      int64  `mapstructure:"rt_exp_sec"`
+	}
+	API struct {
+		ImageURL string `mapstructure:"image_url"`
 	}
 }
 

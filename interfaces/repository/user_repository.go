@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ezio1119/fishapp-user/domain"
-	"github.com/ezio1119/fishapp-user/usecase/repository"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"google.golang.org/grpc/codes"
@@ -16,7 +15,7 @@ type userRepository struct {
 	conn *gorm.DB
 }
 
-func NewUserRepository(conn *gorm.DB) repository.UserRepository {
+func NewUserRepository(conn *gorm.DB) *userRepository {
 	return &userRepository{conn}
 }
 
@@ -73,4 +72,8 @@ func (r *userRepository) UpdateUser(ctx context.Context, u *domain.User) error {
 	}
 
 	return r.conn.Take(u).Error
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, id int64) error {
+	return r.conn.Delete(&domain.User{ID: id}).Error
 }

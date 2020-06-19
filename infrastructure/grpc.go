@@ -11,13 +11,20 @@ import (
 )
 
 func NewGrpcServer(middLe *middleware.Middleware, uc pb.UserServiceServer) *grpc.Server {
+
 	server := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
-			middLe.LoggerInterceptor(),
-			middLe.ValidatorInterceptor(),
-			middLe.AuthInterceptor(),
-			middLe.RecoveryInterceptor(),
-		))
+			middLe.UnaryLogingInterceptor(),
+			middLe.UnaryValidationInterceptor(),
+			middLe.UnaryAuthInterceptor(),
+			middLe.UnaryRecoveryInterceptor(),
+		),
+		grpc.ChainStreamInterceptor(
+			middLe.StreamLogingInterceptor(),
+			middLe.StreamRecoveryInterceptor(),
+		),
+	)
+
 	pb.RegisterUserServiceServer(server, uc)
 	reflection.Register(server)
 	return server

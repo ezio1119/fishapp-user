@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"bytes"
 	"context"
 	"strconv"
 	"time"
@@ -14,21 +15,23 @@ import (
 type userInteractor struct {
 	userRepository      repository.UserRepository
 	blackListRepository repository.BlackListRepository
+	imageRepository     repository.ImageRepository
 	ctxTimeout          time.Duration
 }
 
 func NewUserInteractor(
 	u repository.UserRepository,
 	b repository.BlackListRepository,
+	i repository.ImageRepository,
 	t time.Duration,
-) UserUsecase {
-	return &userInteractor{u, b, t}
+) *userInteractor {
+	return &userInteractor{u, b, i, t}
 }
 
 type UserUsecase interface {
-	CreateUser(ctx context.Context, u *domain.User) (*domain.TokenPair, error)
+	CreateUser(ctx context.Context, u *domain.User, imageBuf *bytes.Buffer) (*domain.TokenPair, error)
 	GetUser(ctx context.Context, id int64) (*domain.User, error)
-	UpdateUser(ctx context.Context, u *domain.User) error
+	UpdateUser(ctx context.Context, u *domain.User, imageBuf *bytes.Buffer) error
 	UpdatePassword(ctx context.Context, id int64, oldPassword string, newPassword string) error
 	Login(ctx context.Context, email string, pass string) (*domain.User, *domain.TokenPair, error)
 	Logout(ctx context.Context, jwtClaims *domain.JwtClaims) error
@@ -43,12 +46,12 @@ func (i *userInteractor) GetUser(ctx context.Context, id int64) (*domain.User, e
 	if err != nil {
 		return nil, err
 	}
-	// getuserは認証がないため、emailは参照できない
+	// getuserは認証なしのため、emailは参照できない
 	u.Email = ""
 	return u, nil
 }
 
-func (i *userInteractor) CreateUser(ctx context.Context, u *domain.User) (*domain.TokenPair, error) {
+func (i *userInteractor) CreateUser(ctx context.Context, u *domain.User, imageBuf *bytes.Buffer) (*domain.TokenPair, error) {
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
@@ -63,14 +66,46 @@ func (i *userInteractor) CreateUser(ctx context.Context, u *domain.User) (*domai
 		return nil, err
 	}
 
+	if imageBuf.Len() != 0 {
+		if err := i.imageRepository.BatchCreateImages(context.Background(), u.ID, []*bytes.Buffer{imageBuf}); err != nil {
+			if err := i.userRepository.DeleteUser(context.Background(), u.ID); err != nil {
+				return nil, err
+			}
+			return nil, err
+		}
+	}
+
 	return genTokenPair(strconv.FormatInt(u.ID, 10))
 }
 
-func (i *userInteractor) UpdateUser(ctx context.Context, u *domain.User) error {
+func (i *userInteractor) UpdateUser(ctx context.Context, u *domain.User, imageBuf *bytes.Buffer) error {
 	ctx, cancel := context.WithTimeout(ctx, i.ctxTimeout)
 	defer cancel()
 
-	return i.userRepository.UpdateUser(ctx, u)
+	oldU, err := i.userRepository.GetUser(ctx, u.ID)
+	if err != nil {
+		return err
+	}
+
+	if err := i.userRepository.UpdateUser(ctx, u); err != nil {
+		return err
+	}
+
+	if imageBuf.Len() != 0 {
+		if err := i.imageRepository.DeleteImagesByUserID(ctx, u.ID); err != nil {
+			if err := i.userRepository.UpdateUser(ctx, oldU); err != nil {
+				return err
+			}
+		}
+
+		if err := i.imageRepository.BatchCreateImages(ctx, u.ID, []*bytes.Buffer{imageBuf}); err != nil {
+			if err := i.userRepository.UpdateUser(ctx, oldU); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (i *userInteractor) UpdatePassword(ctx context.Context, id int64, oldPwd string, newPwd string) error {

@@ -342,93 +342,38 @@ func (m *CreateUserReq) Validate() error {
 		return nil
 	}
 
-	if err := m._validateEmail(m.GetEmail()); err != nil {
-		return CreateUserReqValidationError{
-			field:  "Email",
-			reason: "value must be a valid email address",
-			cause:  err,
-		}
-	}
+	switch m.Data.(type) {
 
-	if !_CreateUserReq_Password_Pattern.MatchString(m.GetPassword()) {
-		return CreateUserReqValidationError{
-			field:  "Password",
-			reason: "value does not match regex pattern \"^[A-Za-z0-9]{6,72}$\"",
-		}
-	}
+	case *CreateUserReq_Info:
 
-	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 10 {
-		return CreateUserReqValidationError{
-			field:  "Name",
-			reason: "value length must be between 1 and 10 runes, inclusive",
-		}
-	}
-
-	if l := utf8.RuneCountInString(m.GetIntroduction()); l < 1 || l > 1000 {
-		return CreateUserReqValidationError{
-			field:  "Introduction",
-			reason: "value length must be between 1 and 1000 runes, inclusive",
-		}
-	}
-
-	if _, ok := Sex_name[int32(m.GetSex())]; !ok {
-		return CreateUserReqValidationError{
-			field:  "Sex",
-			reason: "value must be one of the defined enum values",
-		}
-	}
-
-	return nil
-}
-
-func (m *CreateUserReq) _validateHostname(host string) error {
-	s := strings.ToLower(strings.TrimSuffix(host, "."))
-
-	if len(host) > 253 {
-		return errors.New("hostname cannot exceed 253 characters")
-	}
-
-	for _, part := range strings.Split(s, ".") {
-		if l := len(part); l == 0 || l > 63 {
-			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
-		}
-
-		if part[0] == '-' {
-			return errors.New("hostname parts cannot begin with hyphens")
-		}
-
-		if part[len(part)-1] == '-' {
-			return errors.New("hostname parts cannot end with hyphens")
-		}
-
-		for _, r := range part {
-			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
-				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+		if v, ok := interface{}(m.GetInfo()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return CreateUserReqValidationError{
+					field:  "Info",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
+	case *CreateUserReq_ImageChunk:
+
+		if len(m.GetImageChunk()) > 65536 {
+			return CreateUserReqValidationError{
+				field:  "ImageChunk",
+				reason: "value length must be at most 65536 bytes",
+			}
+		}
+
+	default:
+		return CreateUserReqValidationError{
+			field:  "Data",
+			reason: "value is required",
+		}
+
 	}
 
 	return nil
-}
-
-func (m *CreateUserReq) _validateEmail(addr string) error {
-	a, err := mail.ParseAddress(addr)
-	if err != nil {
-		return err
-	}
-	addr = a.Address
-
-	if len(addr) > 254 {
-		return errors.New("email addresses cannot exceed 254 characters")
-	}
-
-	parts := strings.SplitN(addr, "@", 2)
-
-	if len(parts[0]) > 64 {
-		return errors.New("email address local phrase cannot exceed 64 characters")
-	}
-
-	return m._validateHostname(parts[1])
 }
 
 // CreateUserReqValidationError is the validation error returned by
@@ -485,7 +430,160 @@ var _ interface {
 	ErrorName() string
 } = CreateUserReqValidationError{}
 
-var _CreateUserReq_Password_Pattern = regexp.MustCompile("^[A-Za-z0-9]{6,72}$")
+// Validate checks the field values on CreateUserReqInfo with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *CreateUserReqInfo) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		return CreateUserReqInfoValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+	}
+
+	if !_CreateUserReqInfo_Password_Pattern.MatchString(m.GetPassword()) {
+		return CreateUserReqInfoValidationError{
+			field:  "Password",
+			reason: "value does not match regex pattern \"^[A-Za-z0-9]{6,72}$\"",
+		}
+	}
+
+	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 10 {
+		return CreateUserReqInfoValidationError{
+			field:  "Name",
+			reason: "value length must be between 1 and 10 runes, inclusive",
+		}
+	}
+
+	if l := utf8.RuneCountInString(m.GetIntroduction()); l < 1 || l > 1000 {
+		return CreateUserReqInfoValidationError{
+			field:  "Introduction",
+			reason: "value length must be between 1 and 1000 runes, inclusive",
+		}
+	}
+
+	if _, ok := Sex_name[int32(m.GetSex())]; !ok {
+		return CreateUserReqInfoValidationError{
+			field:  "Sex",
+			reason: "value must be one of the defined enum values",
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateUserReqInfo) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateUserReqInfo) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+// CreateUserReqInfoValidationError is the validation error returned by
+// CreateUserReqInfo.Validate if the designated constraints aren't met.
+type CreateUserReqInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e CreateUserReqInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e CreateUserReqInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e CreateUserReqInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e CreateUserReqInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e CreateUserReqInfoValidationError) ErrorName() string {
+	return "CreateUserReqInfoValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e CreateUserReqInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sCreateUserReqInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = CreateUserReqInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = CreateUserReqInfoValidationError{}
+
+var _CreateUserReqInfo_Password_Pattern = regexp.MustCompile("^[A-Za-z0-9]{6,72}$")
 
 // Validate checks the field values on CreateUserRes with the rules defined in
 // the proto definition for this message. If any rules are violated, an error
@@ -580,79 +678,38 @@ func (m *UpdateUserReq) Validate() error {
 		return nil
 	}
 
-	if err := m._validateEmail(m.GetEmail()); err != nil {
-		return UpdateUserReqValidationError{
-			field:  "Email",
-			reason: "value must be a valid email address",
-			cause:  err,
-		}
-	}
+	switch m.Data.(type) {
 
-	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 10 {
-		return UpdateUserReqValidationError{
-			field:  "Name",
-			reason: "value length must be between 1 and 10 runes, inclusive",
-		}
-	}
+	case *UpdateUserReq_Info:
 
-	if l := utf8.RuneCountInString(m.GetIntroduction()); l < 1 || l > 1000 {
-		return UpdateUserReqValidationError{
-			field:  "Introduction",
-			reason: "value length must be between 1 and 1000 runes, inclusive",
-		}
-	}
-
-	return nil
-}
-
-func (m *UpdateUserReq) _validateHostname(host string) error {
-	s := strings.ToLower(strings.TrimSuffix(host, "."))
-
-	if len(host) > 253 {
-		return errors.New("hostname cannot exceed 253 characters")
-	}
-
-	for _, part := range strings.Split(s, ".") {
-		if l := len(part); l == 0 || l > 63 {
-			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
-		}
-
-		if part[0] == '-' {
-			return errors.New("hostname parts cannot begin with hyphens")
-		}
-
-		if part[len(part)-1] == '-' {
-			return errors.New("hostname parts cannot end with hyphens")
-		}
-
-		for _, r := range part {
-			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
-				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+		if v, ok := interface{}(m.GetInfo()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdateUserReqValidationError{
+					field:  "Info",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
+	case *UpdateUserReq_ImageChunk:
+
+		if len(m.GetImageChunk()) > 65536 {
+			return UpdateUserReqValidationError{
+				field:  "ImageChunk",
+				reason: "value length must be at most 65536 bytes",
+			}
+		}
+
+	default:
+		return UpdateUserReqValidationError{
+			field:  "Data",
+			reason: "value is required",
+		}
+
 	}
 
 	return nil
-}
-
-func (m *UpdateUserReq) _validateEmail(addr string) error {
-	a, err := mail.ParseAddress(addr)
-	if err != nil {
-		return err
-	}
-	addr = a.Address
-
-	if len(addr) > 254 {
-		return errors.New("email addresses cannot exceed 254 characters")
-	}
-
-	parts := strings.SplitN(addr, "@", 2)
-
-	if len(parts[0]) > 64 {
-		return errors.New("email address local phrase cannot exceed 64 characters")
-	}
-
-	return m._validateHostname(parts[1])
 }
 
 // UpdateUserReqValidationError is the validation error returned by
@@ -708,6 +765,145 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = UpdateUserReqValidationError{}
+
+// Validate checks the field values on UpdateUserReqInfo with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *UpdateUserReqInfo) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if err := m._validateEmail(m.GetEmail()); err != nil {
+		return UpdateUserReqInfoValidationError{
+			field:  "Email",
+			reason: "value must be a valid email address",
+			cause:  err,
+		}
+	}
+
+	if l := utf8.RuneCountInString(m.GetName()); l < 1 || l > 10 {
+		return UpdateUserReqInfoValidationError{
+			field:  "Name",
+			reason: "value length must be between 1 and 10 runes, inclusive",
+		}
+	}
+
+	if l := utf8.RuneCountInString(m.GetIntroduction()); l < 1 || l > 1000 {
+		return UpdateUserReqInfoValidationError{
+			field:  "Introduction",
+			reason: "value length must be between 1 and 1000 runes, inclusive",
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateUserReqInfo) _validateHostname(host string) error {
+	s := strings.ToLower(strings.TrimSuffix(host, "."))
+
+	if len(host) > 253 {
+		return errors.New("hostname cannot exceed 253 characters")
+	}
+
+	for _, part := range strings.Split(s, ".") {
+		if l := len(part); l == 0 || l > 63 {
+			return errors.New("hostname part must be non-empty and cannot exceed 63 characters")
+		}
+
+		if part[0] == '-' {
+			return errors.New("hostname parts cannot begin with hyphens")
+		}
+
+		if part[len(part)-1] == '-' {
+			return errors.New("hostname parts cannot end with hyphens")
+		}
+
+		for _, r := range part {
+			if (r < 'a' || r > 'z') && (r < '0' || r > '9') && r != '-' {
+				return fmt.Errorf("hostname parts can only contain alphanumeric characters or hyphens, got %q", string(r))
+			}
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateUserReqInfo) _validateEmail(addr string) error {
+	a, err := mail.ParseAddress(addr)
+	if err != nil {
+		return err
+	}
+	addr = a.Address
+
+	if len(addr) > 254 {
+		return errors.New("email addresses cannot exceed 254 characters")
+	}
+
+	parts := strings.SplitN(addr, "@", 2)
+
+	if len(parts[0]) > 64 {
+		return errors.New("email address local phrase cannot exceed 64 characters")
+	}
+
+	return m._validateHostname(parts[1])
+}
+
+// UpdateUserReqInfoValidationError is the validation error returned by
+// UpdateUserReqInfo.Validate if the designated constraints aren't met.
+type UpdateUserReqInfoValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateUserReqInfoValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateUserReqInfoValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateUserReqInfoValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateUserReqInfoValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateUserReqInfoValidationError) ErrorName() string {
+	return "UpdateUserReqInfoValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateUserReqInfoValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateUserReqInfo.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateUserReqInfoValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateUserReqInfoValidationError{}
 
 // Validate checks the field values on UpdatePasswordReq with the rules defined
 // in the proto definition for this message. If any rules are violated, an
