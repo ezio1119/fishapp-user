@@ -724,9 +724,9 @@ func (m *UpdatePasswordReq) Validate() error {
 		}
 	}
 
-	if !_UpdatePasswordReq_Password_Pattern.MatchString(m.GetPassword()) {
+	if !_UpdatePasswordReq_NewPassword_Pattern.MatchString(m.GetNewPassword()) {
 		return UpdatePasswordReqValidationError{
-			field:  "Password",
+			field:  "NewPassword",
 			reason: "value does not match regex pattern \"^[A-Za-z0-9]{6,72}$\"",
 		}
 	}
@@ -792,7 +792,7 @@ var _ interface {
 
 var _UpdatePasswordReq_OldPassword_Pattern = regexp.MustCompile("^[A-Za-z0-9]{6,72}$")
 
-var _UpdatePasswordReq_Password_Pattern = regexp.MustCompile("^[A-Za-z0-9]{6,72}$")
+var _UpdatePasswordReq_NewPassword_Pattern = regexp.MustCompile("^[A-Za-z0-9]{6,72}$")
 
 // Validate checks the field values on LoginReq with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

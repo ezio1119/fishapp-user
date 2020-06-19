@@ -37,9 +37,6 @@ type config struct {
 		IDTokenExpSec int64  `mapstructure:"idtoken_exp_sec"`
 		RtExpSec      int64  `mapstructure:"rt_exp_sec"`
 	}
-	API struct {
-		ProfileAPI string `mapstructure:"profile_url"`
-	}
 }
 
 var C config

@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"crypto/ecdsa"
+	"fmt"
 	"log"
 
 	"github.com/dgrijalva/jwt-go"
@@ -17,18 +18,20 @@ import (
 // 認証が必要なメソッド
 var (
 	requireIDTokenMethod = []string{
-		"/pb.UserService/CurrentUser",
-		"/pb.UserService/UpdateUser",
-		"/pb.UserService/UpdatePassword",
+		"/user.UserService/CurrentUser",
+		"/user.UserService/UpdateUser",
+		"/user.UserService/UpdatePassword",
 	}
 	requireRefreshTokenMethod = []string{
-		"/pb.UserService/RefreshIDToken",
-		"/pb.UserService/Logout",
+		"/user.UserService/RefreshIDToken",
+		"/user.UserService/Logout",
 	}
 )
 
 func (m *Middleware) AuthInterceptor() grpc.UnaryServerInterceptor {
+
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		fmt.Printf("info: %#v\n", info)
 		var err error
 		for _, m := range requireIDTokenMethod {
 			if m == info.FullMethod {
@@ -59,9 +62,11 @@ func authFunc(ctx context.Context, tokenType string) (context.Context, error) {
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, "token validation failed: %s", err.Error())
 	}
+
 	if c.Subject != tokenType {
 		return nil, status.Errorf(codes.Unauthenticated, "invalid token_type: require %s", tokenType)
 	}
+
 	return context.WithValue(ctx, domain.JwtCtxKey, *c), nil
 }
 
@@ -70,9 +75,11 @@ func getTokenFromMeta(ctx context.Context, key string) string {
 	if !ok {
 		return ""
 	}
+
 	if len(md[key]) != 1 {
 		return ""
 	}
+
 	return md[key][0]
 }
 

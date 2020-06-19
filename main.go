@@ -25,14 +25,14 @@ func main() {
 	}
 	defer redisC.Close()
 
-	authController := controllers.NewAuthController(
-		interactor.NewAuthInteractor(
+	userController := controllers.NewUserController(
+		interactor.NewUserInteractor(
 			repository.NewUserRepository(dbConn),
 			repository.NewBlackListRepository(redisC),
 			time.Duration(conf.C.Sv.Timeout)*time.Second,
 		))
 
-	server := infrastructure.NewGrpcServer(middleware.InitMiddleware(), authController)
+	server := infrastructure.NewGrpcServer(middleware.InitMiddleware(), userController)
 
 	list, err := net.Listen("tcp", ":"+conf.C.Sv.Port)
 	if err != nil {

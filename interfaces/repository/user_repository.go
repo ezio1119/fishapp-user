@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ezio1119/fishapp-user/domain"
 	"github.com/ezio1119/fishapp-user/usecase/repository"
@@ -61,6 +62,7 @@ func (r *userRepository) GetUserByEmail(ctx context.Context, email string) (*dom
 func (r *userRepository) UpdateUser(ctx context.Context, u *domain.User) error {
 	result := r.conn.Model(u).Updates(u) // SET 'id'も含まれてしまう
 	if err := result.Error; err != nil {
+		fmt.Printf("error: %#v\n", err)
 		e, ok := err.(*mysql.MySQLError)
 		if ok {
 			if e.Number == 1062 {
@@ -69,19 +71,6 @@ func (r *userRepository) UpdateUser(ctx context.Context, u *domain.User) error {
 		}
 		return err
 	}
-	if rows := result.RowsAffected; rows != 1 {
-		return status.Errorf(codes.Internal, "%d rows affected", rows)
-	}
-	return nil
-}
 
-func (r *userRepository) DeleteUser(ctx context.Context, id int64) error {
-	result := r.conn.Delete(&domain.User{ID: id})
-	if err := result.Error; err != nil {
-		return err
-	}
-	if rows := result.RowsAffected; rows != 1 {
-		return status.Errorf(codes.Internal, "%d rows affected", rows)
-	}
-	return nil
+	return r.conn.Take(u).Error
 }
