@@ -15,7 +15,7 @@ services:
   user:
     build: 
       context: .
-      target: dev
+      target: prod
     volumes:
       - .:/app
     depends_on:
