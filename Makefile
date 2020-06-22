@@ -5,8 +5,6 @@ DB_SVC = user-db
 DB_NAME = user_DB
 DB_USER = root
 DB_PWD = password
-DB_VOL_NAME = user-data
-REDIS_VOL_NAME = blacklist-data
 NET = fishapp-net
 PJT_NAME = $(notdir $(PWD))
 
@@ -79,6 +77,5 @@ dblogs:
 redislogs:
 	docker logs -f --tail 100 $(PJT_NAME)_$(REDIS_SVC)_1
 
-rmvol: down
-	docker volume rm $(PJT_NAME)_$(REDIS_VOL_NAME)
-	docker volume rm $(PJT_NAME)_$(DB_VOL_NAME)
+rmvol:
+	docker-compose down -v
