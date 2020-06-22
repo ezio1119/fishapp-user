@@ -1,6 +1,7 @@
 CWD = $(shell pwd)
 PJT_NAME = $(notdir $(PWD))
 NET = fishapp-net
+DC_FILE = docker-compose.yml
 
 SVC = user
 REDIS_SVC = blacklist-kvs
@@ -34,7 +35,7 @@ cli:
 
 waitdb: updb
 	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
-	-timeout 30s \
+	-timeout 60s \
 	-wait tcp://$(DB_SVC):3306
 
 waitnats:
@@ -44,10 +45,6 @@ waitnats:
 waitredis: upredis
 	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
 	-wait tcp://$(REDIS_SVC):6379
-
-waitredis:
-	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
-	-wait tcp://$(REDIS_URL):6379
 
 waitimage:
 	docker run --rm --name grpc_health_probe --net $(NET) stefanprodan/grpc_health_probe:v0.3.0 \
@@ -63,27 +60,27 @@ newsql:
 	migrate/migrate:latest create -ext sql -dir ./sql ${a}
 
 test:
-	docker-compose exec $(SVC) sh -c "go test -v -coverprofile=cover.out ./... && \
+	docker-compose -f $(DC_FILE) exec $(SVC) sh -c "go test -v -coverprofile=cover.out ./... && \
 	go tool cover -html=cover.out -o ./cover.html" && \
 	open ./src/cover.html
 
 up: migrate waitredis waitimage
-	docker-compose up -d $(SVC)
+	docker-compose -f $(DC_FILE) up -d $(SVC)
 
 updb:
-	docker-compose up -d $(DB_SVC)
+	docker-compose -f $(DC_FILE) up -d $(DB_SVC)
 
 upredis:
-	docker-compose up -d $(REDIS_SVC)
+	docker-compose -f $(DC_FILE) up -d $(REDIS_SVC)
 
 build:
-	docker-compose build
+	docker-compose -f $(DC_FILE) build
 
 down:
-	docker-compose down
+	docker-compose -f $(DC_FILE) down
 
 exec:
-	docker-compose exec $(SVC) sh
+	docker-compose -f $(DC_FILE) exec $(SVC) sh
 
 logs:
 	docker logs -f --tail 100 $(PJT_NAME)_$(SVC)_1
@@ -95,4 +92,4 @@ redislogs:
 	docker logs -f --tail 100 $(PJT_NAME)_$(REDIS_SVC)_1
 
 rmvol:
-	docker-compose down -v
+	docker-compose -f $(DC_FILE) down -v
