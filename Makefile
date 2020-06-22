@@ -6,6 +6,7 @@ DB_NAME = user_DB
 DB_USER = root
 DB_PWD = password
 NET = fishapp-net
+GRPC_SVC = UserService
 PJT_NAME = $(notdir $(PWD))
 
 createnet:
@@ -25,7 +26,7 @@ proto:
 
 cli:
 	docker run --rm --name grpc_cli --net $(NET) znly/grpc_cli \
-	call $(HOST):50051 $(HOST).PostService.$(m) "$(q)"
+	call $(SVC):50051 $(SVC).$(GRPC_SVC).$(m) "$(q)"
 
 waitdb: updb
 	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
@@ -46,7 +47,7 @@ newsql:
 	migrate/migrate:latest create -ext sql -dir ./sql ${a}
 
 test:
-	docker-compose exec $(DB_SVC) sh -c "go test -v -coverprofile=cover.out ./... && \
+	docker-compose exec $(SVC) sh -c "go test -v -coverprofile=cover.out ./... && \
 	go tool cover -html=cover.out -o ./cover.html" && \
 	open ./src/cover.html
 
