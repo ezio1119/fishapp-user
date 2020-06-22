@@ -1,13 +1,17 @@
 CWD = $(shell pwd)
+PJT_NAME = $(notdir $(PWD))
+NET = fishapp-net
+
 SVC = user
 REDIS_SVC = blacklist-kvs
+GRPC_SVC_NAME = UserService
+
 DB_SVC = user-db
 DB_NAME = user_DB
 DB_USER = root
 DB_PWD = password
-NET = fishapp-net
-GRPC_SVC = UserService
-PJT_NAME = $(notdir $(PWD))
+
+IMAGE_URL = image:50051
 
 createnet:
 	docker network create $(NET)
@@ -26,7 +30,7 @@ proto:
 
 cli:
 	docker run --rm --name grpc_cli --net $(NET) znly/grpc_cli \
-	call $(SVC):50051 $(SVC).$(GRPC_SVC).$(m) "$(q)"
+	call $(SVC):50051 $(SVC).$(GRPC_SVC_NAME).$(m) "$(q)"
 
 waitdb: updb
 	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
@@ -36,6 +40,18 @@ waitdb: updb
 waitnats:
 	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
 	-wait tcp://$(NATS_URL)
+
+waitredis: upredis
+	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
+	-wait tcp://$(REDIS_SVC):6379
+
+waitredis:
+	docker run --rm --name dockerize --net $(NET) jwilder/dockerize \
+	-wait tcp://$(REDIS_URL):6379
+
+waitimage:
+	docker run --rm --name grpc_health_probe --net $(NET) stefanprodan/grpc_health_probe:v0.3.0 \
+	grpc_health_probe -addr=$(IMAGE_URL)
 
 migrate: waitdb
 	docker run --rm --name migrate --net $(NET) \
@@ -51,7 +67,7 @@ test:
 	go tool cover -html=cover.out -o ./cover.html" && \
 	open ./src/cover.html
 
-up: migrate upredis
+up: migrate waitredis waitimage
 	docker-compose up -d $(SVC)
 
 updb:
