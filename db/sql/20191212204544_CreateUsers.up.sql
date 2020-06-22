@@ -7,4 +7,4 @@ CREATE TABLE `users`(
   `sex` INT(11) NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL
-)
+);
