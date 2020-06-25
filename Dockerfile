@@ -5,6 +5,9 @@ WORKDIR /app
 RUN apk add --no-cache tzdata git && \
     go get github.com/pilu/fresh
 
+# for skaffold
+COPY . .
+
 CMD ["fresh"]
 
 # コンパイラ用
