@@ -15,9 +15,9 @@ services:
   user:
     build: 
       context: .
-      target: prod
-    # volumes:
-    #   - .:/app
+      target: dev
+    volumes:
+      - .:/app
     depends_on:
       - user-db
     tty: true
