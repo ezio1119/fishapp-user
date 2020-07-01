@@ -19,6 +19,11 @@ kvs:
   host: blacklist-kvs
   port: 6379
   net: tcp
+  sentinel:
+    host: sentinel-host
+    port: 26379
+    mastername: mymaster
+    pass: password
 auth:
   # dev key
   pvt_jwtkey: "-----BEGIN EC PRIVATE KEY-----\nMHcCAQEEIHmWK/MNCJ384ql5CRo7QIoj2mjcp30+o2ZeY8NcZxVboAoGCCqGSM49\nAwEHoUQDQgAEgKxyRRhwBXxK0bCfsY7Ut8eo/IL637/qWpa41QEyObCGms1LnCZZ\n4YTIgVhglGWwMmERgZ+2294R0JfTiCYAnQ==\n-----END EC PRIVATE KEY-----"
