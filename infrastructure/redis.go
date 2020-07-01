@@ -23,10 +23,10 @@ func NewRedisClient() (*redis.Client, error) {
 func NewRedisFailoverClient() (*redis.Client, error) {
 	addr := conf.C.Kvs.Sentinel.Host + ":" + conf.C.Kvs.Sentinel.Port
 	c := redis.NewFailoverClient(&redis.FailoverOptions{
-		MasterName:       conf.C.Kvs.Sentinel.MasterName,
-		SentinelAddrs:    []string{addr},
-		SentinelPassword: conf.C.Kvs.Sentinel.Pass,
-		// Password:         conf.C.Kvs.Sentinel.Pass,
+		MasterName:    conf.C.Kvs.Sentinel.MasterName,
+		SentinelAddrs: []string{addr},
+		// SentinelPassword: conf.C.Kvs.Sentinel.Pass,
+		Password: conf.C.Kvs.Sentinel.Pass,
 	})
 
 	if _, err := c.Ping().Result(); err != nil {
