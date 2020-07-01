@@ -26,6 +26,7 @@ func NewRedisFailoverClient() (*redis.Client, error) {
 		MasterName:       conf.C.Kvs.Sentinel.MasterName,
 		SentinelAddrs:    []string{addr},
 		SentinelPassword: conf.C.Kvs.Sentinel.Pass,
+		Password:         conf.C.Kvs.Sentinel.Pass,
 	})
 
 	if _, err := c.Ping().Result(); err != nil {
