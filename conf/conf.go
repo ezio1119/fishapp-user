@@ -26,11 +26,17 @@ type config struct {
 		ImageChunkSize int64
 	}
 	Kvs struct {
-		Db   int
-		Pass string
-		Host string
-		Port string
-		Net  string
+		Db       int
+		Pass     string
+		Host     string
+		Port     string
+		Net      string
+		Sentinel struct {
+			Host       string
+			Port       string
+			MasterName string
+			Pass       string
+		}
 	}
 	Auth struct {
 		PvtJwtkey     string `mapstructure:"pvt_jwtkey"`

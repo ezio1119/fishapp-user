@@ -12,6 +12,7 @@ import (
 	"github.com/ezio1119/fishapp-user/interfaces/repository"
 	"github.com/ezio1119/fishapp-user/pb"
 	"github.com/ezio1119/fishapp-user/usecase/interactor"
+	"github.com/go-redis/redis/v7"
 	"google.golang.org/grpc"
 )
 
@@ -23,10 +24,17 @@ func main() {
 	}
 	defer dbConn.Close()
 
-	redisC, err := infrastructure.NewRedisClient()
+	var redisC *redis.Client
+	if conf.C.Sv.Debug {
+		redisC, err = infrastructure.NewRedisClient()
+	} else {
+		redisC, err = infrastructure.NewRedisFailoverClient()
+	}
+
 	if err != nil {
 		panic(err)
 	}
+
 	defer redisC.Close()
 
 	grpcConn, err := grpc.DialContext(ctx, conf.C.API.ImageURL, grpc.WithInsecure())
